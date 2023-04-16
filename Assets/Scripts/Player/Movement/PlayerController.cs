@@ -31,6 +31,9 @@ public class PlayerController : MonoBehaviour
     [Header("Main Menu Canvas")]
     [SerializeField] private Canvas canvas;
 
+    [Header("Animation")]
+    public Animator animator;
+
 
 
 
@@ -42,6 +45,7 @@ public class PlayerController : MonoBehaviour
         playerControls = new PlayerControls();
         rb = GetComponent<Rigidbody>();
         col = GetComponent<Collider>();
+        Animator animator = transform.GetChild(0).GetComponent<Animator>();
     }
 
     void Start()
@@ -73,9 +77,9 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        // Canvas is active, disable player movement
         if (canvas.isActiveAndEnabled)
         {
-            // Canvas is active, disable player movement
             rb.velocity = Vector3.zero;
             return;
         }
@@ -87,8 +91,6 @@ public class PlayerController : MonoBehaviour
         Vector3 currentPosition = transform.position;
         currentPosition.x += movementInput * speed * Time.deltaTime;
         transform.position = currentPosition;
-
-
 
         // Set the movement direction
         movementDirection = new Vector3(0f, 0f, movementInput);
@@ -102,6 +104,17 @@ public class PlayerController : MonoBehaviour
             transform.rotation = targetRotation;*/
         }
 
+        // Animations
+        if (movementDirection == Vector3.zero)
+        {
+            // Idle
+            animator.SetFloat("Speed", 0);
+        }
+        else
+        {
+            // Walk
+            animator.SetFloat("Speed", 1);
+        }
         
     }
 

@@ -19,8 +19,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float jumpSpeed;
     [SerializeField] private float gravityScale = 3.0f; // adjust this to control the strength of the downward force
 
-
-
     [Header("Grow & Shrink")]
     [SerializeField] private float smallScale;
     [SerializeField] private float normalScale;
@@ -30,6 +28,8 @@ public class PlayerController : MonoBehaviour
     private bool isSmall = false;
     private bool isNormal = true;
 
+    [Header("Main Menu Canvas")]
+    [SerializeField] private Canvas canvas;
 
 
 
@@ -46,13 +46,40 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        playerControls.Ground.Jump.performed += _ => Jump();
-        playerControls.Ground.Grow.performed += _ => Grow();
-        playerControls.Ground.Shrink.performed += _ => Shrink();
+        playerControls.Ground.Jump.performed += _ =>
+        {
+            if (!canvas.isActiveAndEnabled)
+            {
+                Jump();
+            }
+        };
+
+        playerControls.Ground.Grow.performed += _ =>
+        {
+            if (!canvas.isActiveAndEnabled)
+            {
+                Grow();
+            }
+        };
+
+        playerControls.Ground.Shrink.performed += _ =>
+        {
+            if (!canvas.isActiveAndEnabled)
+            {
+                Shrink();
+            }
+        };
     }
 
     void Update()
     {
+        if (canvas.isActiveAndEnabled)
+        {
+            // Canvas is active, disable player movement
+            rb.velocity = Vector3.zero;
+            return;
+        }
+
         // Read the moovement value
         float movementInput = playerControls.Ground.Move.ReadValue<float>();
 

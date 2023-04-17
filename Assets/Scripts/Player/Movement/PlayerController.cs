@@ -98,10 +98,10 @@ public class PlayerController : MonoBehaviour
         // Rotate the player based on movement direction
         if (movementDirection != Vector3.zero)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(movementDirection);
-            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * speed);
             /*Quaternion targetRotation = Quaternion.LookRotation(movementDirection);
-            transform.rotation = targetRotation;*/
+            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * speed);*/
+            Quaternion targetRotation = Quaternion.LookRotation(movementDirection);
+            transform.rotation = targetRotation;
         }
 
         // Animations

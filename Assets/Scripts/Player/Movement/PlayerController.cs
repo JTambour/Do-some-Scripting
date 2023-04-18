@@ -28,6 +28,9 @@ public class PlayerController : MonoBehaviour
     private bool isSmall = false;
     private bool isNormal = true;
 
+    // Check if Player has entered trigger to activate size 
+    private bool hasTriggered = false;
+
     [Header("Main Menu Canvas")]
     [SerializeField] private Canvas canvas;
 
@@ -154,33 +157,44 @@ public class PlayerController : MonoBehaviour
 
     private void Grow()
     {
-        if (isSmall)
+        if (hasTriggered)
         {
-            transform.localScale = new Vector3(normalScale, normalScale, normalScale);
-            isSmall = false;
-            isNormal = true;
-        }
-        else if (isNormal)
-        {
-            transform.localScale = new Vector3(bigScale, bigScale, bigScale);
-            isNormal = false;
-            isBig = true;
-        }
+            if (isSmall)
+            {
+                transform.localScale = new Vector3(normalScale, normalScale, normalScale);
+                isSmall = false;
+                isNormal = true;
+            }
+            else if (isNormal)
+            {
+                transform.localScale = new Vector3(bigScale, bigScale, bigScale);
+                isNormal = false;
+                isBig = true;
+            }
+        }   
     }
 
     private void Shrink()
     {
-        if (isBig)
+        if (hasTriggered)
         {
-            transform.localScale = new Vector3(normalScale, normalScale, normalScale);
-            isBig = false;
-            isNormal = true;
-        }
-        else if (isNormal)
-        {
-            transform.localScale = new Vector3(smallScale, smallScale, smallScale);
-            isNormal = false;
-            isSmall = true;
-        }
+            if (isBig)
+            {
+                transform.localScale = new Vector3(normalScale, normalScale, normalScale);
+                isBig = false;
+                isNormal = true;
+            }
+            else if (isNormal)
+            {
+                transform.localScale = new Vector3(smallScale, smallScale, smallScale);
+                isNormal = false;
+                isSmall = true;
+            }
+        }       
+    }
+
+    public void SetHasTriggered(bool value)
+    {
+        hasTriggered = value;
     }
 }

@@ -20,11 +20,6 @@ public class PauseMenuUI : MonoBehaviour
         playerControls = new PlayerControls();         
     }
 
-    void Update()
-    {
-      
-    }
-
     private void OnEnable()
     {
         menu = playerControls.UI.Escape;

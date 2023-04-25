@@ -31,6 +31,9 @@ public class PlayerController : MonoBehaviour
     // Check if Player has entered trigger to activate size 
     private bool hasTriggered = false;
 
+    // Chec if can Grow
+    private bool canGrow = false;
+
     [Header("Main Menu Canvas")]
     [SerializeField] private Canvas canvas;
 
@@ -164,8 +167,9 @@ public class PlayerController : MonoBehaviour
                 transform.localScale = new Vector3(normalScale, normalScale, normalScale);
                 isSmall = false;
                 isNormal = true;
+                isBig = false;
             }
-            else if (isNormal)
+            else if (isNormal && canGrow)
             {
                 transform.localScale = new Vector3(bigScale, bigScale, bigScale);
                 isNormal = false;
@@ -182,7 +186,7 @@ public class PlayerController : MonoBehaviour
             {
                 transform.localScale = new Vector3(normalScale, normalScale, normalScale);
                 isBig = false;
-                isNormal = true;
+                isNormal = true;           
             }
             else if (isNormal)
             {
@@ -196,5 +200,21 @@ public class PlayerController : MonoBehaviour
     public void SetHasTriggered(bool value)
     {
         hasTriggered = value;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("GrowTrigger"))
+        {
+            canGrow = true;
+        }
+    }
+
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.CompareTag("GrowTrigger"))
+        {
+            canGrow = false;
+        }
     }
 }

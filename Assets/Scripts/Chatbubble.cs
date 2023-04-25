@@ -2,22 +2,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Chatbubble : MonoBehaviour
+public class ChatBubble : MonoBehaviour
 {
     public GameObject chatBubble;
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
-        {           
-            chatBubble.SetActive(true);
+        {
+            chatBubble.gameObject.SetActive(true);          
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        chatBubble.SetActive(false);
+        if (other.CompareTag("Player"))
+        {
+            chatBubble.gameObject.SetActive(false);           
+        }
     }
 }
-
-

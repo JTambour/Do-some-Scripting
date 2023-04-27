@@ -1,6 +1,9 @@
 using UnityEngine;
+using System.Collections;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
+using Cinemachine;
 
 public class PauseMenuUI : MonoBehaviour
 {
@@ -13,15 +16,23 @@ public class PauseMenuUI : MonoBehaviour
     [SerializeField] private bool isPaused;
 
     [Header("Cameras")]
-    [SerializeField] private Camera mainMenuCamera;
-    [SerializeField] private Camera playerCamera;
+    public CinemachineVirtualCameraBase mainMenuCamera;
+    public CinemachineVirtualCameraBase playerCamera;
+
+    
+
 
 
 
 
     private void Awake()
     {
-        playerControls = new PlayerControls();         
+        playerControls = new PlayerControls();            
+    }
+
+    private void Update()
+    {
+       
     }
 
     private void OnEnable()
@@ -57,8 +68,31 @@ public class PauseMenuUI : MonoBehaviour
 
     public void ActivateMainMenu()
     {
-        pauseMenuCanvas.SetActive(false);       
-        mainMenuCanvas.SetActive(true);
+            // Disable the PauseMenuCanvas
+            pauseMenuCanvas.SetActive(false);
+            
+            // Activate MainMenuCanvas
+            mainMenuCanvas.SetActive(true);
+            Time.timeScale = 1;
+            AudioListener.pause = false;           
+            isPaused = false;
+
+            // Activate and Deactivate Cameras
+            playerCamera.gameObject.SetActive(false);
+            mainMenuCamera.gameObject.SetActive(true);
+
+            // Reset the Scene
+            StartCoroutine(ResetGameWithDelay(2f));
+        
+
+
+    }
+
+    IEnumerator ResetGameWithDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
     void ActivatePauseMenu()

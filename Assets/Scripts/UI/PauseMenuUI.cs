@@ -12,8 +12,12 @@ public class PauseMenuUI : MonoBehaviour
     [SerializeField] private GameObject mainMenuCanvas;
     [SerializeField] private bool isPaused;
 
+    [Header("Cameras")]
+    [SerializeField] private Camera mainMenuCamera;
+    [SerializeField] private Camera playerCamera;
 
-    
+
+
 
     private void Awake()
     {
@@ -33,36 +37,48 @@ public class PauseMenuUI : MonoBehaviour
     }
 
     void Pause(InputAction.CallbackContext context)
-    {
+    {     
         if (!mainMenuCanvas.activeSelf)
         {
             isPaused = !isPaused;
 
             if (isPaused)
             {
-                ActivateMenu();
+                ActivatePauseMenu();
             }
             else
             {
-                DeactivateMenu();
+                DeactivatePauseMenu();
             }
         }
         
+
     }
 
-    void ActivateMenu()
+    public void ActivateMainMenu()
+    {
+        pauseMenuCanvas.SetActive(false);       
+        mainMenuCanvas.SetActive(true);
+    }
+
+    void ActivatePauseMenu()
     {
         Time.timeScale = 0;
         AudioListener.pause = true;
         pauseMenuCanvas.SetActive(true);
     }
 
-    public void DeactivateMenu()
+    public void DeactivatePauseMenu()
     {
         Time.timeScale = 1;
         AudioListener.pause = false;
         pauseMenuCanvas.SetActive(false);
         isPaused = false;
+    }
+
+    public void Quit()
+    {
+        Application.Quit();
     }
 
     

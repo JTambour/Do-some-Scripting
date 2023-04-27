@@ -34,17 +34,15 @@ public class PlayerController : MonoBehaviour
     // Chec if can Grow
     private bool canGrow = false;
 
+    // Wall Check
+    [Header("Wall Check")]
+    [SerializeField] private Transform wallCheck;
+
     [Header("Main Menu Canvas")]
     [SerializeField] private Canvas canvas;
 
     [Header("Animation")]
     public Animator animator;
-
-
-
-
-
-
 
     private void Awake()
     {
@@ -52,10 +50,7 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         col = GetComponent<Collider>();
         Animator animator = transform.GetChild(0).GetComponent<Animator>();
-    }
 
-    void Start()
-    {
         playerControls.Ground.Jump.performed += _ =>
         {
             if (!canvas.isActiveAndEnabled)
@@ -81,8 +76,9 @@ public class PlayerController : MonoBehaviour
         };
     }
 
+    
     void Update()
-    {
+    {      
         // Canvas is active, disable player movement
         if (canvas.isActiveAndEnabled)
         {
@@ -90,22 +86,34 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        // Read the moovement value
         float movementInput = playerControls.Ground.Move.ReadValue<float>();
 
-        // Move the Player
-        Vector3 currentPosition = transform.position;
-        currentPosition.x += movementInput * speed * Time.deltaTime;
-        transform.position = currentPosition;
+        // Check if wall
+        if (!isWall())
+        {
+            // Read the moovement value
+            //float movementInput = playerControls.Ground.Move.ReadValue<float>();
 
-        // Set the movement direction
+            // Move the Player
+            Vector3 currentPosition = transform.position;
+            currentPosition.x += movementInput * speed * Time.deltaTime;
+            transform.position = currentPosition;
+
+            // Set the movement direction
+           // movementDirection = new Vector3(0f, 0f, movementInput);
+        }
+
         movementDirection = new Vector3(0f, 0f, movementInput);
 
         // Rotate the player based on movement direction
         if (movementDirection != Vector3.zero)
-        {
-            /*Quaternion targetRotation = Quaternion.LookRotation(movementDirection);
-            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * speed);*/
+        {          
+            Quaternion targetRotation = Quaternion.LookRotation(movementDirection);
+            transform.rotation = targetRotation;
+        }
+
+        if (movementDirection == Vector3.zero)
+        {          
             Quaternion targetRotation = Quaternion.LookRotation(movementDirection);
             transform.rotation = targetRotation;
         }
@@ -158,13 +166,18 @@ public class PlayerController : MonoBehaviour
         return Physics.CheckSphere(feetPos, .1f, ground);
     }
 
-    private void Grow()
+    public bool isWall()
     {
+        return Physics.CheckSphere(wallCheck.transform.position, 0.1f, ground);
+    }
+
+    private void Grow()
+    {   
         if (hasTriggered)
         {
             if (isSmall)
             {
-                transform.localScale = new Vector3(normalScale, normalScale, normalScale);
+                transform.localScale = new Vector3(normalScale, normalScale, normalScale);              
                 isSmall = false;
                 isNormal = true;
                 isBig = false;

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -7,34 +8,25 @@ using Cinemachine;
 
 public class PauseMenuUI : MonoBehaviour
 {
+    public PlayerController playerController;
     private PlayerControls playerControls;
     private InputAction menu;
 
-    [Header("Canvases")]
-    [SerializeField] private GameObject pauseMenuCanvas;
-    [SerializeField] private GameObject mainMenuCanvas;
     [SerializeField] private bool isPaused;
 
+    [Header("Canvases")]
+    [SerializeField] private GameObject pauseMenuCanvas;
+    [SerializeField] private Canvas mainMenuCanvas;
+    
     [Header("Cameras")]
     public CinemachineVirtualCameraBase mainMenuCamera;
     public CinemachineVirtualCameraBase playerCamera;
-
-    
-
-
-
-
-
+  
     private void Awake()
     {
         playerControls = new PlayerControls();            
     }
-
-    private void Update()
-    {
-       
-    }
-
+  
     private void OnEnable()
     {
         menu = playerControls.UI.Escape;
@@ -49,7 +41,7 @@ public class PauseMenuUI : MonoBehaviour
 
     void Pause(InputAction.CallbackContext context)
     {     
-        if (!mainMenuCanvas.activeSelf)
+        if (!mainMenuCanvas.isActiveAndEnabled)
         {
             isPaused = !isPaused;
 
@@ -66,13 +58,13 @@ public class PauseMenuUI : MonoBehaviour
 
     }
 
-    public void ActivateMainMenu()
+    public void QuitToMainMenu()
     {
             // Disable the PauseMenuCanvas
             pauseMenuCanvas.SetActive(false);
             
             // Activate MainMenuCanvas
-            mainMenuCanvas.SetActive(true);
+            mainMenuCanvas.gameObject.SetActive(true);
             Time.timeScale = 1;
             AudioListener.pause = false;           
             isPaused = false;
@@ -82,10 +74,7 @@ public class PauseMenuUI : MonoBehaviour
             mainMenuCamera.gameObject.SetActive(true);
 
             // Reset the Scene
-            StartCoroutine(ResetGameWithDelay(2f));
-        
-
-
+            StartCoroutine(ResetGameWithDelay(2f));       
     }
 
     IEnumerator ResetGameWithDelay(float delay)
@@ -108,6 +97,40 @@ public class PauseMenuUI : MonoBehaviour
         AudioListener.pause = false;
         pauseMenuCanvas.SetActive(false);
         isPaused = false;
+    }
+
+    public void SavePlayer()
+    {
+        SaveManager.SavePlayer(playerController);
+    }
+
+    public void LoadPlayer()
+    {
+        PlayerData data = SaveManager.LoadPlayer();
+
+        // Load Player position
+        Vector3 position;
+        position.x = data.position[0];
+        position.y = data.position[1];
+        position.z = data.position[2];
+        transform.position = position;
+
+        // If Loaded from Main Menu
+        if (mainMenuCanvas.isActiveAndEnabled)
+        {
+            mainMenuCanvas.gameObject.SetActive(false);
+            playerCamera.gameObject.SetActive(true);
+            mainMenuCamera.gameObject.SetActive(false);
+        }
+
+        // If Loaded from Pause Menu
+        if (isPaused)
+        {
+            Time.timeScale = 1;
+            AudioListener.pause = false;
+            pauseMenuCanvas.SetActive(false);
+            isPaused = false;
+        }
     }
 
     public void Quit()

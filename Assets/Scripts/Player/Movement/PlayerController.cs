@@ -1,16 +1,22 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+//using Cinemachine;
 
 public class PlayerController : MonoBehaviour
 {
-    private PlayerControls playerControls;
+    public PlayerControls playerControls;
+    public PauseMenuUI pauseMenuUI;
 
     private Rigidbody rb;
     private Collider col;
     private Vector3 movementDirection;
 
     [SerializeField] private LayerMask ground;
+
+    /*[Header("Cameras")]
+    public CinemachineVirtualCameraBase mainMenuCamera;
+    public CinemachineVirtualCameraBase playerCamera;*/
 
     [Header("Movement")]
     [SerializeField] private float speed;
@@ -39,8 +45,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform wallCheck;
 
     [Header("Main Menu Canvas")]
-    [SerializeField] private Canvas canvas;
-
+    [SerializeField] private Canvas mainMenuCanvas;
+    //[SerializeField] private GameObject PauseMenuCanvas;
+   
     [Header("Animation")]
     public Animator animator;
 
@@ -53,7 +60,7 @@ public class PlayerController : MonoBehaviour
 
         playerControls.Ground.Jump.performed += _ =>
         {
-            if (!canvas.isActiveAndEnabled)
+            if (!mainMenuCanvas.isActiveAndEnabled)
             {
                 Jump();
             }
@@ -61,7 +68,7 @@ public class PlayerController : MonoBehaviour
 
         playerControls.Ground.Grow.performed += _ =>
         {
-            if (!canvas.isActiveAndEnabled)
+            if (!mainMenuCanvas.isActiveAndEnabled)
             {
                 Grow();
             }
@@ -69,7 +76,7 @@ public class PlayerController : MonoBehaviour
 
         playerControls.Ground.Shrink.performed += _ =>
         {
-            if (!canvas.isActiveAndEnabled)
+            if (!mainMenuCanvas.isActiveAndEnabled)
             {
                 Shrink();
             }
@@ -80,7 +87,7 @@ public class PlayerController : MonoBehaviour
     void Update()
     {      
         // Canvas is active, disable player movement
-        if (canvas.isActiveAndEnabled)
+        if (mainMenuCanvas.isActiveAndEnabled)
         {
             rb.velocity = Vector3.zero;
             return;
@@ -230,4 +237,6 @@ public class PlayerController : MonoBehaviour
             canGrow = false;
         }
     }
+
+   
 }

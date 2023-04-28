@@ -5,14 +5,20 @@ using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using Cinemachine;
+using TMPro;
 
 public class PauseMenuUI : MonoBehaviour
 {
+    public PauseMenuUI pauseMenuUI;
     public PlayerController playerController;
+
     private PlayerControls playerControls;
     private InputAction menu;
 
     [SerializeField] private bool isPaused;
+
+    [Header("Component")]
+    public TextMeshProUGUI timerText;
 
     [Header("Canvases")]
     [SerializeField] private GameObject pauseMenuCanvas;
@@ -21,12 +27,44 @@ public class PauseMenuUI : MonoBehaviour
     [Header("Cameras")]
     public CinemachineVirtualCameraBase mainMenuCamera;
     public CinemachineVirtualCameraBase playerCamera;
-  
+
+    [Header("Time Stamp")]
+    public float timer;
+
     private void Awake()
     {
-        playerControls = new PlayerControls();            
+        playerControls = new PlayerControls();
+
+        
     }
-  
+
+    private void Update()
+    {      
+        if (Time.timeScale == 1)
+        {
+            timer += Time.deltaTime;
+
+            int seconds = (int)(timer % 60);
+            int minutes = (int)(timer / 60) % 60;
+
+            string timerString = string.Format("{0:00}:{1:00}", minutes, seconds);
+
+            timerText.text = timerString;
+        }
+        else
+        {
+
+        }
+
+        Debug.Log(timer);
+    }
+
+    public float GetTime()
+    {
+        return timer;
+    }
+
+
     private void OnEnable()
     {
         menu = playerControls.UI.Escape;
@@ -101,7 +139,7 @@ public class PauseMenuUI : MonoBehaviour
 
     public void SavePlayer()
     {
-        SaveManager.SavePlayer(playerController);
+        SaveManager.SavePlayer(this);
     }
 
     public void LoadPlayer()
@@ -131,6 +169,11 @@ public class PauseMenuUI : MonoBehaviour
             pauseMenuCanvas.SetActive(false);
             isPaused = false;
         }
+
+        // Load Time
+        timer = data.time;
+        timerText.text = data.timerString;
+
     }
 
     public void Quit()

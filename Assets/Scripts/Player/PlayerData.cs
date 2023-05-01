@@ -11,7 +11,7 @@ public class PlayerData
     public float[] position;
 
     // Save Player Position
-    public PlayerData (PauseMenuUI playerController)
+    public PlayerData (MenuManager playerController)
     {
         // Time stuff
         time = playerController.GetTime();

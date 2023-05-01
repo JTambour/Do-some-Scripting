@@ -1,29 +1,32 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-//using Cinemachine;
+using MoreMountains.Feedbacks;
+using UnityEngine.Events;
 
 public class PlayerController : MonoBehaviour
 {
+    [Header("Scripts")]
+    public MenuManager menuManager;
     public PlayerControls playerControls;
-    public PauseMenuUI pauseMenuUI;
-
+    
     private Rigidbody rb;
     private Collider col;
     private Vector3 movementDirection;
 
+    [Header("Layers")]
     [SerializeField] private LayerMask ground;
-
-    /*[Header("Cameras")]
-    public CinemachineVirtualCameraBase mainMenuCamera;
-    public CinemachineVirtualCameraBase playerCamera;*/
 
     [Header("Movement")]
     [SerializeField] private float speed;
     
     [Header("Jump")]
-    [SerializeField] private float jumpSpeed;
-    [SerializeField] private float gravityScale = 3.0f; // adjust this to control the strength of the downward force
+    [SerializeField] private float jumpForce = 15f;
+    private const float _lowVelocity = 0.1f;
+    private float _velocityLastFrame;
+    private bool _jumping = false;
+
+    //[SerializeField] private float gravityScale = 3.0f; // adjust this to control the strength of the downward force
 
     [Header("Grow & Shrink")]
     [SerializeField] private float smallScale;
@@ -37,7 +40,7 @@ public class PlayerController : MonoBehaviour
     // Check if Player has entered trigger to activate size 
     private bool hasTriggered = false;
 
-    // Chec if can Grow
+    // Check if can Grow
     private bool canGrow = false;
 
     // Wall Check
@@ -51,16 +54,23 @@ public class PlayerController : MonoBehaviour
     [Header("Animation")]
     public Animator animator;
 
+    [Header("Feedbacks")]
+    public MMFeedbacks JumpFeedback;
+    public MMFeedbacks LandingFeedback;
+    public MMFeedbacks GrowFeedback;
+    public MMFeedbacks ShrinkFeedback;
+
     private void Awake()
     {
         playerControls = new PlayerControls();
         rb = GetComponent<Rigidbody>();
         col = GetComponent<Collider>();
+        Physics.gravity = Vector3.down * 30;
         Animator animator = transform.GetChild(0).GetComponent<Animator>();
 
         playerControls.Ground.Jump.performed += _ =>
         {
-            if (!mainMenuCanvas.isActiveAndEnabled)
+            if (!mainMenuCanvas.isActiveAndEnabled && !_jumping)
             {
                 Jump();
             }
@@ -97,17 +107,11 @@ public class PlayerController : MonoBehaviour
 
         // Check if wall
         if (!isWall())
-        {
-            // Read the moovement value
-            //float movementInput = playerControls.Ground.Move.ReadValue<float>();
-
+        {                      
             // Move the Player
             Vector3 currentPosition = transform.position;
             currentPosition.x += movementInput * speed * Time.deltaTime;
-            transform.position = currentPosition;
-
-            // Set the movement direction
-           // movementDirection = new Vector3(0f, 0f, movementInput);
+            transform.position = currentPosition;          
         }
 
         movementDirection = new Vector3(0f, 0f, movementInput);
@@ -125,6 +129,17 @@ public class PlayerController : MonoBehaviour
             transform.rotation = targetRotation;
         }
 
+        // if jumping, were going down last frame, and have now reached an almost null velocity
+        if (_jumping && (_velocityLastFrame < -1) && (Mathf.Abs(rb.velocity.y) < _lowVelocity))
+        {
+            // then we just landed, we reset our state
+            _jumping = false;
+            LandingFeedback?.PlayFeedbacks();
+        }
+
+        // we store our velocity
+        _velocityLastFrame = rb.velocity.y;
+
         // Animations
         if (movementDirection == Vector3.zero)
         {
@@ -137,15 +152,6 @@ public class PlayerController : MonoBehaviour
             animator.SetFloat("Speed", 1);
         }
         
-    }
-
-    private void FixedUpdate()
-    {
-        // apply a downward force if the player is falling
-        if (rb.velocity.y < 0)
-        {
-            rb.AddForce(Vector3.down * rb.mass * gravityScale);
-        }
     }
 
     private void OnEnable()
@@ -162,7 +168,9 @@ public class PlayerController : MonoBehaviour
     {
        if (IsGrounded())
         {
-            rb.AddForce(new Vector2(0, jumpSpeed), ForceMode.Impulse);
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            _jumping = true;
+            JumpFeedback?.PlayFeedbacks();
         }
     }
 
@@ -181,47 +189,53 @@ public class PlayerController : MonoBehaviour
     private void Grow()
     {   
         if (hasTriggered)
-        {
+        {           
             if (isSmall)
             {
+                GrowFeedback?.PlayFeedbacks();
                 transform.localScale = new Vector3(normalScale, normalScale, normalScale);              
                 isSmall = false;
                 isNormal = true;
-                isBig = false;
+                isBig = false;              
             }
             else if (isNormal && canGrow)
             {
+                GrowFeedback?.PlayFeedbacks();
                 transform.localScale = new Vector3(bigScale, bigScale, bigScale);
                 isNormal = false;
-                isBig = true;
+                isBig = true;               
             }
         }   
     }
 
     private void Shrink()
-    {
+    {       
         if (hasTriggered)
-        {
+        {            
             if (isBig)
             {
+                ShrinkFeedback?.PlayFeedbacks();
                 transform.localScale = new Vector3(normalScale, normalScale, normalScale);
                 isBig = false;
-                isNormal = true;           
+                isNormal = true;             
             }
             else if (isNormal)
             {
+                ShrinkFeedback?.PlayFeedbacks();
                 transform.localScale = new Vector3(smallScale, smallScale, smallScale);
                 isNormal = false;
-                isSmall = true;
+                isSmall = true;              
             }
         }       
     }
 
+    // Trigger to detarmin if Player can use Grow/Shrink
     public void SetHasTriggered(bool value)
     {
         hasTriggered = value;
     }
-
+   
+    // Trigger to determain if player can grow
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("GrowTrigger"))

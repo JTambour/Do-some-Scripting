@@ -4,13 +4,13 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 public static class SaveManager 
 {
-    public static void SavePlayer (PauseMenuUI pauseMenuUI)
+    public static void SavePlayer (MenuManager menuManager)
     {
         BinaryFormatter formatter = new BinaryFormatter();
         string path = Application.persistentDataPath + "/player.data";
         FileStream stream = new FileStream(path, FileMode.Create);
 
-        PlayerData data = new PlayerData(pauseMenuUI);
+        PlayerData data = new PlayerData(menuManager);
 
         formatter.Serialize(stream, data);
         stream.Close();

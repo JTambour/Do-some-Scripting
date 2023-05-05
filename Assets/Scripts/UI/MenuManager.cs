@@ -23,7 +23,13 @@ public class MenuManager : MonoBehaviour
     [Header("Canvases")]
     [SerializeField] private GameObject pauseMenuCanvas;
     [SerializeField] private Canvas mainMenuCanvas;
-    
+
+    [Header("Active Options Panel")]
+    [SerializeField] private GameObject audio;
+    [SerializeField] private GameObject video;
+    [SerializeField] private GameObject controls;
+    [SerializeField] private GameObject accesibility;
+
     [Header("Cameras")]
     public CinemachineVirtualCameraBase mainMenuCamera;
     public CinemachineVirtualCameraBase playerCamera;
@@ -32,8 +38,11 @@ public class MenuManager : MonoBehaviour
     public float timer;
     public TextMeshProUGUI timerText;
 
+
+
     [Header("Feedbacks")]
     public MMFeedbacks ambientSound;
+    public MMFeedbacks musicGame;
 
     private void Awake()
     {
@@ -44,6 +53,7 @@ public class MenuManager : MonoBehaviour
     private void Start()
     {
         ambientSound?.PlayFeedbacks();
+        audio.SetActive(true);
     }
 
     private void Update()
@@ -115,7 +125,7 @@ public class MenuManager : MonoBehaviour
             mainMenuCamera.gameObject.SetActive(true);
 
             // Reset the Scene
-            StartCoroutine(ResetGameWithDelay(2f));
+            StartCoroutine(ResetGameWithDelay(2f));          
     }
 
     IEnumerator ResetGameWithDelay(float delay)
@@ -123,6 +133,26 @@ public class MenuManager : MonoBehaviour
         yield return new WaitForSeconds(delay);
 
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    public void ToggleFullscreen()
+    {
+        Screen.fullScreen = !Screen.fullScreen;
+    }
+
+    public void ToggleFullscreenOff()
+    {
+        if (Screen.fullScreen)
+        {
+            Screen.fullScreen = false;
+        }
+    }
+
+
+
+    public void StartGame()
+    {
+        musicGame?.PlayFeedbacks();
     }
 
     void ActivatePauseMenu()
@@ -136,6 +166,38 @@ public class MenuManager : MonoBehaviour
         Time.timeScale = 1;
         pauseMenuCanvas.SetActive(false);
         isPaused = false;
+    }
+
+    public void Audio()
+    {
+        audio.SetActive(true);
+        video.SetActive(false);
+        controls.SetActive(false);
+        accesibility.SetActive(false);
+    }
+
+    public void Video()
+    {
+        audio.SetActive(false);
+        video.SetActive(true);
+        controls.SetActive(false);
+        accesibility.SetActive(false);
+    }
+
+    public void Controls()
+    {
+        audio.SetActive(false);
+        video.SetActive(false);
+        controls.SetActive(true);
+        accesibility.SetActive(false);
+    }
+
+    public void Accesibility()
+    {
+        audio.SetActive(false);
+        video.SetActive(false);
+        controls.SetActive(false);
+        accesibility.SetActive(true);
     }
 
     public void SavePlayer()

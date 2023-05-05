@@ -7,7 +7,6 @@ using UnityEngine.Events;
 public class PlayerController : MonoBehaviour
 {
     [Header("Scripts")]
-    public MenuManager menuManager;
     public PlayerControls playerControls;
     
     private Rigidbody rb;
@@ -19,9 +18,10 @@ public class PlayerController : MonoBehaviour
 
     [Header("Movement")]
     [SerializeField] private float speed;
-    
+    [SerializeField] private float _rotationSpeed;
+
     [Header("Jump")]
-    [SerializeField] private float jumpForce = 15f;
+    [SerializeField] float jumpForce = 15f;
     private const float _lowVelocity = 0.1f;
     private float _velocityLastFrame;
     private bool _jumping = false;
@@ -43,9 +43,15 @@ public class PlayerController : MonoBehaviour
     // Check if can Grow
     private bool canGrow = false;
 
+    [Header("Movable Object")]
+    public Rigidbody movableObjectRb;
+
     // Wall Check
     [Header("Wall Check")]
     [SerializeField] private Transform wallCheck;
+
+    [Header("Ground Check")]
+    [SerializeField] private Transform groundCheck;
 
     [Header("Main Menu Canvas")]
     [SerializeField] private Canvas mainMenuCanvas;
@@ -67,10 +73,10 @@ public class PlayerController : MonoBehaviour
         col = GetComponent<Collider>();
         Physics.gravity = Vector3.down * 30;
         Animator animator = transform.GetChild(0).GetComponent<Animator>();
-
+    
         playerControls.Ground.Jump.performed += _ =>
         {
-            if (!mainMenuCanvas.isActiveAndEnabled && !_jumping)
+            if (!mainMenuCanvas.isActiveAndEnabled && !_jumping && IsGrounded())
             {
                 Jump();
             }
@@ -90,7 +96,7 @@ public class PlayerController : MonoBehaviour
             {
                 Shrink();
             }
-        };
+        };     
     }
 
     
@@ -103,7 +109,45 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        float movementInput = playerControls.Ground.Move.ReadValue<float>();
+        Vector3 movement = playerControls.Ground.Move2.ReadValue<Vector2>();
+
+        if (!isWall())
+        {
+            Vector3 currentPosition = transform.position;
+            Vector3 movementDirection = new Vector3(movement.x, 0f, movement.y).normalized;
+
+            currentPosition += movementDirection * speed * Time.deltaTime;
+
+            transform.position = currentPosition;
+
+            if (movementDirection != Vector3.zero)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(movementDirection);
+                transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * _rotationSpeed);
+
+            }
+
+            if (movementDirection == Vector3.zero)
+            {
+                // Idle
+                animator.SetFloat("Speed", 0);
+            }
+            else
+            {
+                // Walk
+                animator.SetFloat("Speed", 1);
+            }
+        }
+
+        /*///Rotating the player
+        Quaternion targetRotation = transform.rotation;
+        transform.rotation = targetRotation;
+        float targetAngle = Mathf.Atan2(movement.x, movement.z) * Mathf.Rad2Deg;
+        targetRotation = Quaternion.Euler(0, targetAngle, 0);
+        transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, _rotationSpeed * Time.deltaTime);*/
+
+
+        /*float movementInput = playerControls.Ground.Move.ReadValue<float>();
 
         // Check if wall
         if (!isWall())
@@ -114,9 +158,9 @@ public class PlayerController : MonoBehaviour
             transform.position = currentPosition;          
         }
 
-        movementDirection = new Vector3(0f, 0f, movementInput);
+        movementDirection = new Vector3(0f, 0f, movementInput);*/
 
-        // Rotate the player based on movement direction
+        /*// Rotate the player based on movement direction
         if (movementDirection != Vector3.zero)
         {          
             Quaternion targetRotation = Quaternion.LookRotation(movementDirection);
@@ -127,7 +171,7 @@ public class PlayerController : MonoBehaviour
         {          
             Quaternion targetRotation = Quaternion.LookRotation(movementDirection);
             transform.rotation = targetRotation;
-        }
+        }*/
 
         // if jumping, were going down last frame, and have now reached an almost null velocity
         if (_jumping && (_velocityLastFrame < -1) && (Mathf.Abs(rb.velocity.y) < _lowVelocity))
@@ -151,7 +195,19 @@ public class PlayerController : MonoBehaviour
             // Walk
             animator.SetFloat("Speed", 1);
         }
-        
+
+
+        // Disable objects kinematic state 
+        bool playerInRange = Physics.CheckSphere(transform.position, 2f, ground);
+
+        if (playerInRange && isBig)
+        {
+            movableObjectRb.isKinematic = false;
+        }
+        else
+        {
+            movableObjectRb.isKinematic = true;
+        }
     }
 
     private void OnEnable()
@@ -175,10 +231,8 @@ public class PlayerController : MonoBehaviour
     }
 
     private bool IsGrounded()
-    {
-        Vector2 feetPos = transform.position;
-        feetPos.y -= col.bounds.extents.y;
-        return Physics.CheckSphere(feetPos, .1f, ground);
+    {       
+        return Physics.CheckSphere(groundCheck.transform.position, 0.5f, ground);
     }
 
     public bool isWall()
@@ -241,7 +295,7 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("GrowTrigger"))
         {
             canGrow = true;
-        }
+        }   
     }
 
     private void OnTriggerExit(Collider other)
@@ -249,7 +303,7 @@ public class PlayerController : MonoBehaviour
         if (other.CompareTag("GrowTrigger"))
         {
             canGrow = false;
-        }
+        }      
     }
 
    

@@ -5,11 +5,13 @@ using UnityEngine;
 public class TriggerChatBubble : MonoBehaviour
 {
     public GameObject chatBubble;
+    public Animator animator;
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
+            animator.SetTrigger("Activate");
             chatBubble.gameObject.SetActive(true);
         }
     }

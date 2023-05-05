@@ -62,6 +62,15 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": false
+                },
+                {
+                    ""name"": ""Move2"",
+                    ""type"": ""Value"",
+                    ""id"": ""12e9b7cf-8fcf-4d36-841b-d8b910cfab58"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": """",
+                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
@@ -156,7 +165,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""c3b30ebc-cd9a-4dec-80ed-4d4c1abd5d7a"",
-                    ""path"": ""<Keyboard>/w"",
+                    ""path"": ""<Keyboard>/e"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -178,7 +187,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""c4cf93a9-85b2-4afa-88a7-87aabe602f95"",
-                    ""path"": ""<Keyboard>/s"",
+                    ""path"": ""<Keyboard>/q"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -196,6 +205,72 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                     ""action"": ""Shrink"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""a7bacaf5-739d-4f42-be5c-d72d5eef127a"",
+                    ""path"": """",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move2"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""2D Vector"",
+                    ""id"": ""6f7f3d6d-55ee-47d7-bcd2-b86cc81e9094"",
+                    ""path"": ""2DVector"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move2"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""b704db35-a00a-4e47-9d83-20615404c6bc"",
+                    ""path"": ""<Keyboard>/w"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move2"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""6c93031a-65b2-4f9d-b5fa-d24c24f51f4f"",
+                    ""path"": ""<Keyboard>/s"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move2"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""b26889a6-8351-4bf3-abc2-c2b190d93028"",
+                    ""path"": ""<Keyboard>/a"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move2"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""602f5b51-3a65-44f7-b9e9-1e53b3427770"",
+                    ""path"": ""<Keyboard>/d"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Move2"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 }
             ]
         },
@@ -247,6 +322,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         m_Ground_Jump = m_Ground.FindAction("Jump", throwIfNotFound: true);
         m_Ground_Grow = m_Ground.FindAction("Grow", throwIfNotFound: true);
         m_Ground_Shrink = m_Ground.FindAction("Shrink", throwIfNotFound: true);
+        m_Ground_Move2 = m_Ground.FindAction("Move2", throwIfNotFound: true);
         // UI
         m_UI = asset.FindActionMap("UI", throwIfNotFound: true);
         m_UI_Escape = m_UI.FindAction("Escape", throwIfNotFound: true);
@@ -313,6 +389,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
     private readonly InputAction m_Ground_Jump;
     private readonly InputAction m_Ground_Grow;
     private readonly InputAction m_Ground_Shrink;
+    private readonly InputAction m_Ground_Move2;
     public struct GroundActions
     {
         private @PlayerControls m_Wrapper;
@@ -321,6 +398,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         public InputAction @Jump => m_Wrapper.m_Ground_Jump;
         public InputAction @Grow => m_Wrapper.m_Ground_Grow;
         public InputAction @Shrink => m_Wrapper.m_Ground_Shrink;
+        public InputAction @Move2 => m_Wrapper.m_Ground_Move2;
         public InputActionMap Get() { return m_Wrapper.m_Ground; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -342,6 +420,9 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @Shrink.started -= m_Wrapper.m_GroundActionsCallbackInterface.OnShrink;
                 @Shrink.performed -= m_Wrapper.m_GroundActionsCallbackInterface.OnShrink;
                 @Shrink.canceled -= m_Wrapper.m_GroundActionsCallbackInterface.OnShrink;
+                @Move2.started -= m_Wrapper.m_GroundActionsCallbackInterface.OnMove2;
+                @Move2.performed -= m_Wrapper.m_GroundActionsCallbackInterface.OnMove2;
+                @Move2.canceled -= m_Wrapper.m_GroundActionsCallbackInterface.OnMove2;
             }
             m_Wrapper.m_GroundActionsCallbackInterface = instance;
             if (instance != null)
@@ -358,6 +439,9 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
                 @Shrink.started += instance.OnShrink;
                 @Shrink.performed += instance.OnShrink;
                 @Shrink.canceled += instance.OnShrink;
+                @Move2.started += instance.OnMove2;
+                @Move2.performed += instance.OnMove2;
+                @Move2.canceled += instance.OnMove2;
             }
         }
     }
@@ -401,6 +485,7 @@ public partial class @PlayerControls : IInputActionCollection2, IDisposable
         void OnJump(InputAction.CallbackContext context);
         void OnGrow(InputAction.CallbackContext context);
         void OnShrink(InputAction.CallbackContext context);
+        void OnMove2(InputAction.CallbackContext context);
     }
     public interface IUIActions
     {

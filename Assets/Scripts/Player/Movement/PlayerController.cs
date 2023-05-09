@@ -6,9 +6,8 @@ using UnityEngine.Events;
 
 public class PlayerController : MonoBehaviour
 {
-    [Header("Scripts")]
-    public PlayerControls playerControls;
-    
+    PlayerControls playerControls;
+ 
     private Rigidbody rb;
     private Collider col;
     private Vector3 movementDirection;
@@ -26,7 +25,8 @@ public class PlayerController : MonoBehaviour
     private float _velocityLastFrame;
     private bool _jumping = false;
 
-    //[SerializeField] private float gravityScale = 3.0f; // adjust this to control the strength of the downward force
+    // Camera
+    Transform cameraTransform;
 
     [Header("Grow & Shrink")]
     [SerializeField] private float smallScale;
@@ -71,6 +71,7 @@ public class PlayerController : MonoBehaviour
         playerControls = new PlayerControls();
         rb = GetComponent<Rigidbody>();
         col = GetComponent<Collider>();
+        cameraTransform = Camera.main.transform;
         Physics.gravity = Vector3.down * 30;
         Animator animator = transform.GetChild(0).GetComponent<Animator>();
     
@@ -96,8 +97,18 @@ public class PlayerController : MonoBehaviour
             {
                 Shrink();
             }
-        };     
+        };   
+        
+        playerControls.Ground.Look.performed += _ =>
+        {
+            if (!mainMenuCanvas.isActiveAndEnabled)
+            {
+                Look();
+            }
+        };
     }
+
+    
 
     
     void Update()
@@ -114,7 +125,11 @@ public class PlayerController : MonoBehaviour
         if (!isWall())
         {
             Vector3 currentPosition = transform.position;
-            Vector3 movementDirection = new Vector3(movement.x, 0f, movement.y).normalized;
+            movementDirection = new Vector3(movement.x, 0f, movement.y).normalized;
+
+            // Camera
+            movementDirection = movementDirection.x * cameraTransform.right.normalized + movementDirection.z * cameraTransform.forward.normalized;
+            movementDirection.y = 0f;
 
             currentPosition += movementDirection * speed * Time.deltaTime;
 
@@ -127,6 +142,7 @@ public class PlayerController : MonoBehaviour
 
             }
 
+            // Animations
             if (movementDirection == Vector3.zero)
             {
                 // Idle
@@ -139,40 +155,6 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        /*///Rotating the player
-        Quaternion targetRotation = transform.rotation;
-        transform.rotation = targetRotation;
-        float targetAngle = Mathf.Atan2(movement.x, movement.z) * Mathf.Rad2Deg;
-        targetRotation = Quaternion.Euler(0, targetAngle, 0);
-        transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, _rotationSpeed * Time.deltaTime);*/
-
-
-        /*float movementInput = playerControls.Ground.Move.ReadValue<float>();
-
-        // Check if wall
-        if (!isWall())
-        {                      
-            // Move the Player
-            Vector3 currentPosition = transform.position;
-            currentPosition.x += movementInput * speed * Time.deltaTime;
-            transform.position = currentPosition;          
-        }
-
-        movementDirection = new Vector3(0f, 0f, movementInput);*/
-
-        /*// Rotate the player based on movement direction
-        if (movementDirection != Vector3.zero)
-        {          
-            Quaternion targetRotation = Quaternion.LookRotation(movementDirection);
-            transform.rotation = targetRotation;
-        }
-
-        if (movementDirection == Vector3.zero)
-        {          
-            Quaternion targetRotation = Quaternion.LookRotation(movementDirection);
-            transform.rotation = targetRotation;
-        }*/
-
         // if jumping, were going down last frame, and have now reached an almost null velocity
         if (_jumping && (_velocityLastFrame < -1) && (Mathf.Abs(rb.velocity.y) < _lowVelocity))
         {
@@ -183,19 +165,6 @@ public class PlayerController : MonoBehaviour
 
         // we store our velocity
         _velocityLastFrame = rb.velocity.y;
-
-        // Animations
-        if (movementDirection == Vector3.zero)
-        {
-            // Idle
-            animator.SetFloat("Speed", 0);
-        }
-        else
-        {
-            // Walk
-            animator.SetFloat("Speed", 1);
-        }
-
 
         // Disable objects kinematic state 
         bool playerInRange = Physics.CheckSphere(transform.position, 2f, ground);
@@ -220,14 +189,18 @@ public class PlayerController : MonoBehaviour
         playerControls.Disable();
     }
 
+    void Look()
+    {
+        
+    }
+
     private void Jump()
     {
-       if (IsGrounded())
-        {
+       
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             _jumping = true;
             JumpFeedback?.PlayFeedbacks();
-        }
+        
     }
 
     private bool IsGrounded()

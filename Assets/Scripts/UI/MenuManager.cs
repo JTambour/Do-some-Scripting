@@ -38,16 +38,13 @@ public class MenuManager : MonoBehaviour
     public float timer;
     public TextMeshProUGUI timerText;
 
-
-
     [Header("Feedbacks")]
     public MMFeedbacks ambientSound;
     public MMFeedbacks musicGame;
 
     private void Awake()
     {
-        playerControls = new PlayerControls();
-        
+        playerControls = new PlayerControls(); 
     }
 
     private void Start()
@@ -104,9 +101,7 @@ public class MenuManager : MonoBehaviour
             {
                 DeactivatePauseMenu();
             }
-        }
-        
-
+        }     
     }
 
     public void QuitToMainMenu()
@@ -148,8 +143,6 @@ public class MenuManager : MonoBehaviour
         }
     }
 
-
-
     public void StartGame()
     {
         musicGame?.PlayFeedbacks();
@@ -173,7 +166,6 @@ public class MenuManager : MonoBehaviour
         audio.SetActive(true);
         video.SetActive(false);
         controls.SetActive(false);
-        accesibility.SetActive(false);
     }
 
     public void Video()
@@ -181,7 +173,6 @@ public class MenuManager : MonoBehaviour
         audio.SetActive(false);
         video.SetActive(true);
         controls.SetActive(false);
-        accesibility.SetActive(false);
     }
 
     public void Controls()
@@ -189,15 +180,6 @@ public class MenuManager : MonoBehaviour
         audio.SetActive(false);
         video.SetActive(false);
         controls.SetActive(true);
-        accesibility.SetActive(false);
-    }
-
-    public void Accesibility()
-    {
-        audio.SetActive(false);
-        video.SetActive(false);
-        controls.SetActive(false);
-        accesibility.SetActive(true);
     }
 
     public void SavePlayer()
@@ -243,7 +225,5 @@ public class MenuManager : MonoBehaviour
     {
         Application.Quit();
     }
-
-    
 
 }

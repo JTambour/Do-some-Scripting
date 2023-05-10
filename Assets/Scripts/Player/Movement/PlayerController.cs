@@ -21,9 +21,11 @@ public class PlayerController : MonoBehaviour
 
     [Header("Jump")]
     [SerializeField] float jumpForce = 15f;
-    private const float _lowVelocity = 0.1f;
-    private float _velocityLastFrame;
-    private bool _jumping = false;
+    [SerializeField] int maxJumpCount = 2;
+    int jumpCount = 0;
+    const float _lowVelocity = 0.1f;
+    float _velocityLastFrame;
+    bool _jumping = false;
 
     // Camera
     Transform cameraTransform;
@@ -196,11 +198,19 @@ public class PlayerController : MonoBehaviour
 
     private void Jump()
     {
-       
+        if (IsGrounded())
+        {
+            jumpCount = 1;
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
             _jumping = true;
             JumpFeedback?.PlayFeedbacks();
-        
+        }
+        else if (jumpCount < maxJumpCount)
+        {
+            jumpCount++;
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            JumpFeedback?.PlayFeedbacks();
+        }
     }
 
     private bool IsGrounded()

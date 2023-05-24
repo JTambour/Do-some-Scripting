@@ -14,7 +14,6 @@ public class MenuManager : MonoBehaviour
 {
     [Header("Scripts")]
     public PlayerController playerController;
-
     private PlayerControls playerControls;
     private InputAction menu;
 
@@ -28,7 +27,6 @@ public class MenuManager : MonoBehaviour
     [SerializeField] private GameObject audio;
     [SerializeField] private GameObject video;
     [SerializeField] private GameObject controls;
-    [SerializeField] private GameObject accesibility;
 
     [Header("Cameras")]
     public CinemachineVirtualCameraBase mainMenuCamera;
@@ -37,6 +35,8 @@ public class MenuManager : MonoBehaviour
     [Header("Time Stamp")]
     public float timer;
     public TextMeshProUGUI timerText;
+
+    [Header("Animations")]
 
     [Header("Feedbacks")]
     public MMFeedbacks ambientSound;
@@ -120,7 +120,7 @@ public class MenuManager : MonoBehaviour
             mainMenuCamera.gameObject.SetActive(true);
 
             // Reset the Scene
-            StartCoroutine(ResetGameWithDelay(2f));          
+            StartCoroutine(ResetGameWithDelay(2f));     
     }
 
     IEnumerator ResetGameWithDelay(float delay)
@@ -152,6 +152,7 @@ public class MenuManager : MonoBehaviour
     {
         Time.timeScale = 0;
         pauseMenuCanvas.SetActive(true);
+        playerCamera.gameObject.SetActive(false);
     }
     
     public void DeactivatePauseMenu()
@@ -159,6 +160,7 @@ public class MenuManager : MonoBehaviour
         Time.timeScale = 1;
         pauseMenuCanvas.SetActive(false);
         isPaused = false;
+        playerCamera.gameObject.SetActive(true);
     }
 
     public void Audio()

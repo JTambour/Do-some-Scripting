@@ -57,7 +57,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("Main Menu Canvas")]
     [SerializeField] private Canvas mainMenuCanvas;
-    //[SerializeField] private GameObject PauseMenuCanvas;
+    [SerializeField] private GameObject PauseMenuCanvas;
    
     [Header("Animation")]
     public Animator animator;
@@ -132,6 +132,7 @@ public class PlayerController : MonoBehaviour
             // Camera
             movementDirection = movementDirection.x * cameraTransform.right.normalized + movementDirection.z * cameraTransform.forward.normalized;
             movementDirection.y = 0f;
+
 
             currentPosition += movementDirection * speed * Time.deltaTime;
 
